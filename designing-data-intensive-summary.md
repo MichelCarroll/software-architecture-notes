@@ -5,85 +5,85 @@
 
 ### Glossary
 
-**Data-intensive**
+**Data-intensive:**
 Problem has data with large volume, complexity or speed of change
 
-**Compute-intensive**
+**Compute-intensive:**
 Problem has amount of computation required as a limiting factor
 
-**Data system**
+**Data system:**
 System composed of one or many computer systems designed to handle data (eg. databases, message queues, caches, indexes)
 
-**Non-functional requirements**
+**Non-functional requirements:**
 Application requirements which don't directly relate to its software specifications (eg. maintainability, security, scalability)
 
 **Reliability** 
 Increases likelihood that software behaves as expected in a timely manner, even in the presence of faults. Resistant to misuse and abuse.
 
-**Fault tolerant**
+**Fault tolerant:**
 Decreased likelihood of system failure in the event of faults (eg. hardware, software, and human faults). Does *not* mean a decrease of faults themselves.
 
-**Telemetry**
-Seting up detailed monitoring, performance metrics and error reporting.
+**Telemetry:**
+Setting up detailed monitoring, performance metrics and error reporting.
 
-**Scalability**
+**Scalability:**
 Ability for system to stay reliable despite increased load.
 
-**Load parameter**
+**Load parameter:**
 Quantitative description of load (eg. requests per second, query size)
 
-**Throughput**
+**Throughput:**
 Number of requests that can be fulfilled per time unit. Useful in batch processing.
 
-**Response time**
+**Response time:**
 Time between sending a request and receiving a response. Counts both processing time and network latency. Useful metric in online systems.
 
-**Latency**
+**Latency:**
 Time that a request is *waiting* to be processed. Does not count processing time.
 
-**Fan-out**
+**Fan-out:**
 In order to fulfill one request, many other requests need to be fulfilled (eg. updating home timelines in Twitter). Can lead to exponential increase in number of requests as a result of load.
 
-**Tail latency**
+**Tail latency:**
 The 99th or 99.9th percentile response time.
 
-**Head-of-line blocking**
+**Head-of-line blocking:**
 Slowing down of response time due to earlier slow requests in the queue, since the system has a limited level of parralelism.
 
-**Tail latency amplification**
+**Tail latency amplification:**
 High latency in one service causing latency in many other requests due to multiple backend calls.
 
-**Service-level agreement (SLA)**
+**Service-level agreement (SLA):**
 Level of availability guaranteed by a software system. Usually in terms of uptime, defined by a median response time or tail latency.
 
-**Scaling up**
+**Scaling up:**
 Increasing individual server memory and CPU capacities. Also known as vertical scaling.
 
-**Scaling out**
+**Scaling out:**
 Increasing number of servers in system. Also known as horizontal scaling.
 
-**Elasticity**
+**Elasticity:**
 System which can automatically adjust capacity in event of changing load.
 
-**Maintainability**
+**Maintainability:**
 Decreases post-development costs of software. Includes evolvability, simplicity, operability.
 
-**Operability**
+**Operability:**
 Ease of keeping the system running smoothly by making routine tasks faster and easier to execute. Includes monitorability.
 
-**Evolvability**
+**Evolvability:**
 Ease of modifying and adding functionality as requirements change without introducing regressions. Also known as extensibility, plasticity, modifiability.
 
-**Configurability**
+**Configurability:**
 Ability to change behaviour or system without requiring a change and deployment of its source code.
 
-**Simplicity**
+**Simplicity:**
 Ease of understanding how a system works.
 
-**Accidental complexity**
+**Accidental complexity:**
 System complexity not due to the problem domain. Eleviated by abstraction.
 
-**Inherent complexity**
+**Inherent complexity:**
 System complexity due to the problem domain, and cannot be easily simplified.
 
 ### Key Points
