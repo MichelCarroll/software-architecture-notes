@@ -1,2 +1,1 @@
-Notes
-=====
+[Designing Data Intensive Systems - Book Summary](./designing-data-intensive-summary.md)
