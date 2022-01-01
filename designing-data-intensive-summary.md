@@ -188,3 +188,167 @@ Data model subset of Prolog where data is represented as facts, in the form of `
 - Graph databases are good for evolvability, with the addition of new features being relatively painless
 - While graph traversal is possible using recursive common table expressions in SQL, it's often very verbose and hard to understand
 - NoSQL has diverged into two directions: Document-based where each entity is self-contained, and graph-based where each entity is highly interconnected
+
+
+## Chapter 3 - Storage and Retrieva
+
+### Glossary
+
+**Log:**
+Append-only sequence of records.
+
+**Index:**
+Data structure derived from the primary data with the goal of improving the performance of operations on it.
+
+**Hash Index:**
+Index implemented using a hash map.
+
+**Compaction:**
+Removing redundant or obsolete data segments and keeping the relevant ones. In the case of logs, removing redundant records and keeping the most recent one. 
+
+**Tombstone:**
+Entry with the sole purpose of indicating a deleted record.
+
+**SSTables:**
+Sorted String Table. Log of key-value pairs sorted by key.
+
+**Memtable:**
+In-memory tree data structure used to sort incoming log writes, and periodically merge them into the on-disk SSTable.
+
+**LSM-Trees:**
+Log-structured merge trees. The algorithm involving the use of a memtable and an  SSTable.
+
+**Term dictionary:**
+Key value structure where the key is a term, and the values are its postings list; a reference to each document containing that term.
+
+**Bloom filters:**
+Data structure used to quickly compute whether a given key is NOT inside a data structure. 
+
+**Size-tiered compaction:**
+Segments of similar size are compacted and merged into larger segments when there are a certain number of them.
+
+**Level-tiered compaction:**
+Segments are organized into levels and progressively merged into subsequent levels.
+
+**Embeddable database:**
+Database engine meant to be used inside an application, as opposed to run as a separate server process.
+
+**B-tree:**
+Database are broken up into pages, and indexes are organized as a tree of pages. Uses update-in-place philosophy, rather than an immutable append-only structure.
+
+**Branching factor:**
+Number of children per B-tree node, determined by the size of a page reference.
+
+**Write-ahead log (WAL):**
+Write operations to a B tree are appended to log to restore it to a consistant state in the event of a crash.
+
+**Latches:**
+Analogous to an OS mutex lock. Used by B trees to enable concurrent access to it.
+
+**Copy-on-write schema:**
+Writes to B-tree are written to an alternative location, and then the reference is updated once the new location is consistant.
+
+**Write amplification:**
+Effect of one write to a database causing multiple disk writes. Problematic when the performance bottleneck is the write speed.
+
+**Heap file:**
+Files where data is stored in no particular order. Used by page-oriented databases to store row data.
+
+**Clustered index:**
+Index structure where the entire row is stored inside the index. For example, InnoDB uses a clustered index for primary keys.
+
+**Covering index:**
+A subtype of clustered index where only a subset of the row's columns are stored in the index.
+
+**Concatenated index:**
+Index key made up of a tuple of different column values. For example, the phone book has one using the first name and last name.
+
+**Space filling curve:**
+Mathematical function for encoding a multi-dimensional value using one dimension.
+
+**R-trees:**
+A specialized index for storing spatial data. PostGIS uses R-trees.
+
+**Levenstein automaton:**
+A finite state automaton for storing a fuzzy index of words.
+
+**Anti-caching:**
+Used by in-memory databases to extend the size of the memory available by storing LRU entries into disk, similar to the OS virtual memory.
+
+**Transaction processing:**
+Many small low-latency reads and writes.
+
+**Batch processing:**
+A few large high volume operations run periodically.
+
+**Online transaction processing (OLTP):**
+Access pattern for databases doing transaction processing for interactive applications.
+
+**Online analytic processing (OLAP):**
+Access pattern for databases enabling batch processing and analytical queries for data analytics and intelligence.
+
+**Data warehouse:**
+Database used for running OLAP workloads without affecting the performance of OLTP databases in the business. Data is often extracted from OLTP sources using ETL.
+
+**Star schema:**
+Also known as dimensional modeling. The use of fact tables referencing dimension tables for organizing data warehouses for maximum flexibility.
+
+**Fact table:**
+Contains facts representing events in a data warehouse.
+
+**Dimension table:**
+Contains dimensions representing the what,when,who,where,why,how of a event in a data warehouse.
+
+**Snowflake schema:**
+Generalization of the star schema where dimension tables can have relationships with other dimension tables.
+
+**Row-oriented storage:**
+Scheme for storing data where each row is stored in one place.
+
+**Column-oriented storage:**
+Scheme for storing data where each column is stored in one place.
+
+**Bitmap encoding:**
+A column compression schema where each column value is stored as a bitmap. Useful for columns with a small cardinality.
+
+**Run-length encoding:**
+A column compression scheme for the number of zeroes and ones are stored as a digit. Useful for sparse data.
+
+**Vectorized processing:**
+Taking advantage of SIMD (single instruction, multi data) instructions in modern CPUs to quickly compute operations from compressed columns, and leverage L1 cache.
+
+**Materialized aggregate:**
+Used to improve performance on large aggregate queries by caching their results.
+
+**Materialized view:**
+Implementation of materialized aggregates in an SQL database by defining a query that acts as a virtual view of the data, while keeping the results to disk for improved performance.
+
+**Data cube:**
+A type of materialized view used in OLAP databases for storing a grid of aggregates grouped by different dimensions.
+
+### Key Points
+
+- Keeping indexes comes with a trade-off between read speed and write speed
+- Logs are a great way to increase write speed because disk sequential access is always faster than random access
+- Compaction and merging can be used to keep a list of keys in sorted order
+- Using a binary format eliminates the need for escaping
+- Checksums can be used to protect against partially written data in the event of a crash
+- Concurrency and crash recovery is simplyer for immutable and append-only data
+- Fragmentation can be helped by periodically merging old segments
+- LSM-tree algorithm can be slow for searching keys that don't exist, but this can be eleviated using Bloom filters
+- A relatively small branching factor can accomodate an incredibly large index while still keeping a small depth (4KB pages + branching factor of 500 = 256 TB index)
+- A WAL can be used to make database more resilient to crashes
+- Generally, LSM-trees have faster writes while B trees have faster reads 
+- LSM-trees can have less consistant performance than B trees due to periodic compaction operations
+- LSM-tress have less write amplification problem, especially on magnetic hard drives
+- LSM-trees can be compacted more easily and have less fragmentation
+- If misconfigured, compaction might not keep up with new writes. This needs to be monitored closely.
+- The perfomance of in-memory databases comes primarily because it doesn't need to encode/decode data into/from a disk-friendly format
+- Non-volatile memory is becoming a key driver for database technologies
+- Despite being more normalized and flexible, snowflake schemas are harder to work with for data analysts than star schemas
+- Dates in data warehouses tend to be stored in dimension tables to account for differences in work days, holidays, etc
+- The principle behind column-based storage is that anaylytic queries normally don't use all the values in a row
+- Column-based storage can be more easily take advantage of column compression and vectorized processing
+- Data warehouses sometimes keep data sorted in multiple orders to improve query performance
+- LSM-trees can be used by data warehouses to improve write performance during batch operations
+- While an in-depth understanding of database internals is not always necessary, more knowledge can help understanding and tuning database parameters
