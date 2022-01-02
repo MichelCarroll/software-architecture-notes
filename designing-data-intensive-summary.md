@@ -352,3 +352,100 @@ A type of materialized view used in OLAP databases for storing a grid of aggrega
 - Data warehouses sometimes keep data sorted in multiple orders to improve query performance
 - LSM-trees can be used by data warehouses to improve write performance during batch operations
 - While an in-depth understanding of database internals is not always necessary, more knowledge can help understanding and tuning database parameters
+
+
+## Chapter 4 - Encoding and Evolution
+
+### Glossary
+
+**Backwards compatibility:**
+Newer code can read data written by old code
+
+**Forwards compatibility:**
+Older code can read data written by new code
+
+**Serialization:**
+Also known as marshalling. Encoding in-memory data to be communicated as a byte sequence.
+
+**Textual encoding:**
+More-or-less human readable encodings. For example: JSON, XML, CSV
+
+**Binary encoding:**
+Efficient and compact non-human readable encodings. For example: BSON, WBXML
+
+**MessagePack:**
+A binary encoding with the same principle as JSON but slightly more space efficient.
+
+**Apache Thrift:**
+A binary encoding requiring a schema defined in the Thrift IDL. Has both a BinaryProtocol and CompactProtocol taking up less space. Uses field tags.
+
+**IDL:**
+Interface definition language, for defining data schemas.
+
+**Protocol Buffer (protobuf):**
+A binary encoding requiring a schema. Uses field tags.
+
+**Field tags:**
+Numbers that appear in both the encoded data and the schema definition, for specifying the name and type of each field.
+
+**Avro:**
+A binary encoding that uses a schema defined in Avro IDL or in an equivalent JSON representation. Matches the writer's schema against the reader's schema, as long as they're compatible, according to Avro's rules. The schema sent separately from the data, often alongside it.
+
+**Object container file:**
+Avro encoded data with a writer's schema defined at the beginning of the file. A self-describing format.
+
+**REST:**
+HTTP-based communication philosophy between services. Uses OpenAPI (also known as Swagger) to define the format. 
+
+**SOAP:**
+XML-based protocol for communicating between services, independent from the HTTP protocol.
+
+**WSDL:**
+Used to enable code generation of stubs between services communication using SOAP.
+
+**RPC:**
+Remote procedure calls. Network communication in a location transparent manner: attempting to hide to fact that procedures are happening remotely.
+
+**gRPC:**
+RPC implementation using Protocol Buffers. Fact that communication is over the network is more transparent. Supports streams.
+
+**Finagle:**
+RPC implementation using Thrift. Similar philosophy as gRPC.
+
+**Service discovery:**
+Enables services to programmatically find out the IP/port of another service.
+
+**Message broker:**
+Buffers messages between services, logically and temporaly decoupling them. Also enables fan-out. For example: RabbitMQ, Apache Kafka
+
+**Actor model:**
+Programming model for concurrency within a single process. Abstraction layer over threads.
+
+**Distributed actor model:**
+Using actor model to communicate between different actors in a location transparent manner using implicit message brokers and serialization. For example: Akka, Erland OTP.
+
+### Key Points
+
+- Forward compatibility is often harder than backwards compatibility, since new code can explicitly handle old data
+- With client-side applications, you're often at the mercy of users not updating software, so forward compatibility is important
+- Language specific encodings (Java's Serializable, Python's pickle) is often a poor choice, since it couples you to the language, and makes backwards/forward compatibility difficult  
+- Lack of explicit typing in textual encodings can be problematic without a schema
+- Representing large numbers or high precision in JSON can cause encoding issues. Using strings instead of numbers can eleviate that limitation
+- Binary encodings are more compact, but there's a trade-off with readability 
+- Thrift and Protobuf often uses hand-written schemas, so the programmer can be more explicit about compatibility
+- Avro's field tagless model makes dynamically generated schemas and code generation simpler
+- Code generation is the most useful for statically typed languages
+- Many database drivers use a proprietary encoding for requests and responses
+- A schema is a great source of documentation since it doesn't diverge from reality as easily
+- Keeping a database of schemas can be useful for ensuring forward and backwards compatibility before deployment
+- Backwards compatiblity is necessary when storing data in a databass. Forward compatibility is important for distributed services
+- Avro's evolution rules can be used to encode databases. LinkedIn's Espresso does this.
+- Avro is a good fit for archival data, so it's self-describing
+- Parquet is a more column-oriented storage format similar to the row-oriented Avro.
+- SOAP relies heavily on tooling, IDEs and code generation. It's a very poor choice for external facing APIs. 
+- RPC is fundamentally flawed, since it hides complexities linked to distributed software. For example, timeouts, latency, idempotency, retry logic, serialization.
+- Using futures to encapsulate network calls is an improvement over traditional RPC
+- In case of transient dataflow through a system, backwards compatibility of requessts and forward compatibility of responses is sufficient
+- Versioning can be used to insure long-term compatibility of clients
+- When an encoding is forward and backwards compatible, you have the flexibility to change a message broker's consumers and producers independently
+- The actor model is a natural way to model a distributed system, but backwards and forward compatiblity of messages still needs to be considered
